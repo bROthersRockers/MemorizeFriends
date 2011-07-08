@@ -148,13 +148,22 @@ function add_user_pictures(limit) {
 		process_qfriends(rows, limit);
 	});
 	fblog("Waiting for row data...");
+	$.blockUI({ css: { 
+        border: 'none', 
+        padding: '15px', 
+        backgroundColor: '#000', 
+        '-webkit-border-radius': '10px', 
+        '-moz-border-radius': '10px', 
+        opacity: .5, 
+        color: '#fff' 
+    } });
 };
 
 function process_qfriends(friends, limit) {
 	fblog("Processing friends ...");
 	var max_pict = (limit*limit/2);
 	var selected_friends = new Array();
-	var counter = 50000;
+	var counter = 500000;
 	while((selected_friends.length <= max_pict) && (counter>0)) {
 		counter -= 1;
 		var rnfriend = rnxy(2, friends.length-1);
@@ -182,6 +191,7 @@ function process_qfriends(friends, limit) {
 		}
 	}
 	fblog('Randomly placed ' + (2*max_pict) + ' images on the board.');
+	$.unblockUI();
 };
 
 
