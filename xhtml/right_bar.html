@@ -1,0 +1,37 @@
+<div id="right_bar" class="column grid_2">
+	<div class="board_block">
+		<label class="board_block_label" id="score_label">
+			Score
+		</label>
+		<div>
+			<label class="board_block_value" id="score_value">
+				0
+			</label>
+		</div>
+	</div>
+	<div class="board_block">
+		<label class="board_block_label" id="time_label">
+			Time
+		</label>
+		<div>
+			<form id="counter_form" name="counter">
+				<label class="board_block_value" id="time_value">
+					000
+				</label>
+			</form>
+		</div>
+	</div>
+	<div class="board_block">
+		<label class="board_block_label" id="debug_label">
+			Debug log
+		</label>
+		<div>
+			<form id="debug_toggle_form">
+				<input id="debug_cb" name="debug_combo" type="checkbox" onclick="debug_mode_toggle()" checked="true"/>
+			</form>
+			<div id="my_log_div" class="column grid_10" style="visibility:hidden;">
+
+			</div>
+		</div>
+	</div>
+</div>
