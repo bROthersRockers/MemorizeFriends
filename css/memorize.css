@@ -1,6 +1,27 @@
 body { 
-	padding-top: 20px;
+	padding-top: 10px;
 	background: url("../res/memorize_back.jpg");
+}
+
+#my_log_div{
+	overflow:scroll;
+	border: 2px solid #3A5899;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	width: 99%;
+	min-height: 25px;
+}
+
+.questionMark {
+	position:absolute;
+	z-index: 2;
+}
+
+.user_photo {
+	position:absolute;
+	z-index: 1;
+	margin: 0px 0px 0px 0px;
 }
 
 ul.hover_block { display: block; overflow: hidden; height: 1%; padding: .1em 0 .1em 0; margin-bottom: 0px;}
@@ -8,7 +29,6 @@ ul.hover_block { display: block; overflow: hidden; height: 1%; padding: .1em 0 .
 ul.hover_block li {
 	list-style:none;
 	float:left;
-/*	background: #fff;*/
 	background: transparent;
 	width:99%; 
 	position: relative;
@@ -43,7 +63,7 @@ ul.hover_block li a:hover img {
 }
 
 #left_menu{
-	margin-left: 10px;
+	margin-left: 15px;
 }
 
 #how_many_form_div{
@@ -51,14 +71,11 @@ ul.hover_block li a:hover img {
 }
 
 #how_many_form_div span label{
-	font-size: 22px;
+/*	font-size: 22px;*/
+	font-size: 18px;
 	color: #3A5899;
-	padding: 0 0 1em .5em;	
-	/* padding-top: 1em;*/
-}
-
-#start_image {
-	margin-top: 7px;
+	padding: 0 0 .5em 0;
+	padding-top: 1em;
 }
 
 .board_block {
