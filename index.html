@@ -2,81 +2,173 @@
 <html>
 	<head>
 		<title>Memorize friends</title>
+		<meta name="description" content="Funny way to boost cognitive skills and see which friend you find most in your head">
+		<meta name="author" content="Core UWP Team: Nikša Jakovljević, Zoran Koković">
 		<link href="css/reset.css" rel="stylesheet" />
 		<link href="css/756_14_2_2.css" rel="stylesheet" />
 		<link href="css/text.css" rel="stylesheet" />
 		<link href="css/sliding.css" rel="stylesheet" />
 		<link href="css/memorize.css" rel="stylesheet"/>
+
+		<script src="js/cdn/modernizr-2.0.min.js"></script>
+		<script src="js/cdn/respond.min.js"></script>
+
 	</head>
 	<body>
 		<div id="root_container" class="row">
-		 
 			<div id="top_title" class="column grid_14">
-				<img alt="Memorize title" src="res/memorize_title.png" />
+				<img alt="Memorize title" src="res/memorize_title.png" /> &nbsp;
+				<a href="#" title="Invite" onclick="invite();" style="float:right;margin-right: .5em;vertical-align:bottom">
+					<img alt="Facebook Invitation" src="res/invite-fb.png" />
+				</>
 			</div>
-					
 			<div id="head_container" class="column grid_14">
 				<ul class="blue">
-					<li><a href="#" title="home"><span>home</span></a></li>
-					<li><a href="#" title="board" class="current"><span>board</span></a></li>
-					<li><a href="#" title="options"><span>options</span></a></li>
-					<li><a href="#" title="scores"><span>scores</span></a></li>
-				   <li><a href="#" title="blog"><span>blog</span></a></li>
-				   <li><a href="#" title="contact"><span>contact</span></a></li>
+					<li>
+						<a href="#" title="home">
+						<span>home</span>
+						</a>
+					</li>
+					<li>
+						<a href="#" title="board" class="current">
+						<span>board</span>
+						</a>
+					</li>
+					<li>
+						<a href="#" title="options">
+						<span>options</span>
+						</a>
+					</li>
+					<li>
+						<a href="#" title="scores">
+						<span>scores</span>
+						</a>
+					</li>
+					<li>
+						<a href="#" title="blog">
+						<span>blog</span>
+						</a>
+					</li>
+					<li>
+						<a href="#" title="contact">
+						<span>contact</span>
+						</a>
+					</li>
 				</ul>
 			</div>
-		
 			<div id="left_bar" class="column grid_2">
 				<div id="left_menu">
 					<div id="how_many_form_div">
 						<span>
-							<label>Level</label>
-							<select id="level_select" name="level_select">
-								<option id="l1opt" value="1">Easy</option>
-								<option id="l2opt" value="2">Medium</option>
-								<option id="l3opt" value="3">Hard</option>
-								<option id="l3opt" value="4">Expert</option>
-							</select>
-							<a id="start_button" href="#" name="submit" value="Ok" onclick="button_clicked()">
-								<img id="start_image" alt="Start" src="res/start.png"/>
-							</a>
+							<div id="profile_info">
+								<form id="start_form">
+									<fieldset>
+										<legend>
+											<br/>
+											<div id="profile_holder">
+												<img id="profile_image"/>
+												<b>
+													<br/>
+														Hi there,
+													<br/>
+													<span style="font-size:larger;" id="nickname"></span>!
+												</b>
+												<p>
+													Folks & Talks 
+												</p>
+												<div id="like_fb_holder">
+													<fb:like href="http://www.howtooracle.com/memorize/" send="false" layout="box_count" width="150">
+													</fb:like>	
+												</div>
+												<div id="login_fb_holder">
+													&nbsp;
+												</div>
+											</div>
+										</legend>
+									</fieldset>
+								</form>
+							</div>
 						</span>
 					</div>
 				</div>
 			</div>
-			
 			<div id="card_container" class="column grid_10">
 			</div>
-			
 			<div id="right_bar" class="column grid_2">
 				<div class="board_block">
-					<label class="board_block_label" id="score_label">Score</label>
+					<label class="board_block_label" id="score_label">
+						Score
+					</label>
 					<div>
-						<label class="board_block_value" id="score_value">0</label>
+						<label class="board_block_value" id="score_value">
+							0
+						</label>
 					</div>
 				</div>
 				<div class="board_block">
-					<label class="board_block_label" id="time_label">Time</label>
+					<label class="board_block_label" id="time_label">
+						Time
+					</label>
 					<div>
 						<form id="counter_form" name="counter">
-							<label class="board_block_value" id="time_value">000</label>
-						</form> 
+							<label class="board_block_value" id="time_value">
+								000
+							</label>
+						</form>
 					</div>
 				</div>
+				<div class="board_block">
+					<label class="board_block_label" id="debug_label">
+						Level
+					</label>
+					<p>
+						<br/>
+						<select id="level_select" name="level_select">
+							<option id="l1opt" value="1">Easy</option>
+							<option id="l2opt" value="2">Medium</option>
+							<option id="l3opt" value="3" selected="true">Hard</option>
+							<option id="l4opt" value="4">Expert</option>
+						</select>
+					</p>
+				</div>
+				<div class="board_block"> 
+					<label class="board_block_label" id="newgame_label">
+						Game
+					</label>
+					<p>
+						<br/>
+						<a href="#" title="start" onclick="button_clicked();" >
+							<img src="res/start.png" alt="Start new game"/>
+						</a>						
+					</p>
+				</div>
+			</div>
+			<div class="column grid_1">
+				<p>
+					&nbsp;
+				</p>
+			</div>
+			<div class="column grid_9">
+				<label style="font-size:larger;vertical-align:baseline;">
+					Debug log &nbsp; : &nbsp;
+					<input name="debug_cb" type="checkbox" checked="checked"/>
+				</label>
+			</div>
+			<div id="my_log_div" class="column grid_10">
+				    
 			</div>
 		</div>
-		<div id="fb-root"></div>
+		<div id="fb-root">
+		</div>
 		<script type="text/javascript" src="http://connect.facebook.net/en_US/all.js"></script>
-		
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
-		<script type="text/javascript">
-		  if (typeof jQuery == 'undefined') {
-		    document.write(unescape("%3Cscript src='js/jquery-1.5.js' type='text/javascript'%3E%3C/script%3E"));
-		  }
-		</script>
-		
+		<script>window.jQuery || document.write('<script src="js/cdn/jquery-1.5.js"><\/script>')</script>
+
+		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.3.0/mustache.min.js"></script>
+		<script>window.Mustache || document.write('<script src="js/cdn/mustache.js"><\/script>')</script>
+
+		<script type="text/javascript" src="js/blink_blink.js"></script>
 		<script type="text/javascript" src="js/card_builder.js"></script>
-		<script type="text/javascript" src="js/facebook_private.js"></script>
 		<script type="text/javascript" src="js/facebook.js"></script>
 		<script type="text/javascript" src="js/memorize.js"></script>
 	</body>
