@@ -1,29 +1,47 @@
+var testing_on = false;
+
 /* number of opened cards*/	
 var count = 0;
 
 var pick1 = null;
 var pick2 = null;
 
+var $tval_fld = $("#time_value");
+
+var $sval_fld = $("#score_value");
+
+var $log_div = $("#my_log_div");
+
 $(function(){
     bootstrap(); 
-    build_board(-1, true);
+    build_board(4, true);
+    getConnected();
 });
+
+var memlog  = function(message, boldd) {
+	setTimeout(function(){
+		if(boldd!='undefined' && boldd!=null){
+			$log_div.prepend(("&nbsp;<b>" + message + "</b>&nbsp;"));
+		} else {
+			$log_div.prepend(message);
+		}
+	}, 1000);
+};
 
 bootstrap = function(){
 	$('.hover_action').click(function(){				
 		if(this.getAttribute('click')!= null) return false;
 		if(count < 2 ) {
-                        var my_id = $(this).attr("id");
-                        var qm_id = "qm_" + my_id;
-			var tmp = $('#'+qm_id);		
+			var tmp = $('#qm_' + $(this).attr("id"));		
 			tmp.animate({left:'50px'},{queue:false,duration:500});
 			this.setAttribute('click','click');
 			if(count ==1){
 				pick2 = this;
 				if(pickMatch(pick1, pick2)==true) {
 					count = 0;
-					updateScore();
-					// setTimeout(function(){alert('You made a match!');},300);
+					setTimeout(updatescore,300);
+					// setTimeout($sval_fld.flash('255,0,0', 500), 500);
+					memlog(" You made a match! ", true);
 					return;
 				} else {
 					setTimeout(closing,1500);
@@ -37,84 +55,97 @@ bootstrap = function(){
 	});
 };	
 
-var testing_on = true;
-
 pickMatch=function(pick1,pick2){
 	var p1imgs = $(pick1).find('img');
 	var p2imgs = $(pick2).find('img');
-	if( p1imgs.length>1 &&  p2imgs>1) {
-		var p1 = p1imgs[1].getAttribute('src');
-		var p2 = p2imgs[1].getAttribute('src');
-		return p1 == p2;
-	} 
-	else {
-		if(testing_on==true) {
+	if( p1imgs.length>1 &&  p2imgs.length>1) {
+		var p1 = p1imgs[1].getAttribute('title');
+		var p2 = p2imgs[1].getAttribute('title');
+		if(p1 == p2){
+			pick1.setAttribute('class','opened');
+			pick2.setAttribute('class','opened');
 			return true;
 		} else {
-			return false;
+			memlog("You missed.");
 		}
 	}
-}
+	return testing_on;
+};
 
-updateScore=function(){
-	var currentVal = $("#score_value").text();
-	var newVal = parseInt(currentVal) + 2;
-	$("#score_value").text(newVal);
-}
+updatescore=function(){
+	var newVal = parseInt($sval_fld.text()) + 2;
+	$sval_fld.text(newVal);
+};
 
 closing = function(){
 	if(count == 2) {
 		count = 0;
 		pick1 = null;
 		pick2 = null;
-		$('.hover_action').each(function(){
+		$('.hover_action').not('.opened').each(function(){
 			this.removeAttribute('click');
-			$(this).find('img').animate({left:'0px'},{queue:false,duration:1000});
+			$(this).find('img').animate({left:'0px'},{queue:false,duration:800});
 		});
 	}
 };
 
+var getlevel = function(){
+	return parseInt($("#level_select option:selected").val());
+};
+
 load_board = function(){
-	level_str = $("#level_select option:selected").val();
-	level = parseInt(level_str);  
+	level = getlevel();
 	build_board(level, false);
-	return level;
-}
+	return size_per_level[level-1];
+};
 
 button_clicked = function(){
+	document.body.setAttribute('enabled', false);
 	$("#card_container").html("");
-	level = load_board();	
-	test_facebook_images(card_count);
+	level = load_board();
+	$sval_fld.text(0);	
 	bootstrap();
-        count_down(level);
-	$("#score_value").text(0);
+	add_user_pictures(level);
+	setTimeout(function(){
+		count_down(level);
+		document.body.setAttribute('enabled', true);
+	}, 2000);
 };
 
-
-var milisec = 0;
-var seconds = 30;
 var game_on;
+var seconds = 30;
 
 function display() { 
-  if (milisec<=0){ 
-    milisec=9;
-    seconds-=1; 
-  } 
-  if (seconds<=-1){ 
-    milisec=0;
-    seconds+=1;
-  } 
-  else  {
-     milisec-=1;
+  seconds-=1;
+  $tval_fld.text(seconds);
+  if(seconds > 0) {
+  	setTimeout("display()",1000);
+  } else {
+  	game_on = false;
+  	memlog("Time is up!!!", true);
+  	flashElement($tval_fld, 4, 0, 800);
+  	flashElement($sval_fld, 4, 0, 800);
+  	mssg = 'I\'m having fun and getting good at this one! My New Score: '+$sval_fld.text()+' Yeah! ';
+  	FB.ui({ method: 'feed', message: mssg });
   }
-  $("#time_value").text(seconds+"."+milisec);
-  setTimeout("display()",100);
 };
 
+$(function(){
+    $("#debug_cb").click(function() {
+          $(this).attr('checked', this.checked);
+          if(this.checked==true){
+        	$log_div.show();  	
+          } else {
+          	$log_div.hide();
+          }
+          return true;
+    });
+});
+
 count_down = function(board_size) {
-   seconds = board_size * board_size * 5;
-   $("#time_value").text(seconds+"."+milisec);
-   if(game_on == null){
+   seconds = board_size * board_size * 3;
+   $tval_fld.text(seconds);
+   if(game_on == null || game_on == false){
       display();
       game_on = true;
    }
