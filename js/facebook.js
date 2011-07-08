@@ -148,15 +148,7 @@ function add_user_pictures(limit) {
 		process_qfriends(rows, limit);
 	});
 	fblog("Waiting for row data...");
-	$.blockUI({ css: { 
-        border: 'none', 
-        padding: '15px', 
-        backgroundColor: '#000', 
-        '-webkit-border-radius': '10px', 
-        '-moz-border-radius': '10px', 
-        opacity: .5, 
-        color: '#fff' 
-    } });
+	jQuery.blockUI();
 };
 
 function process_qfriends(friends, limit) {
@@ -191,7 +183,7 @@ function process_qfriends(friends, limit) {
 		}
 	}
 	fblog('Randomly placed ' + (2*max_pict) + ' images on the board.');
-	$.unblockUI();
+	jQuery.unblockUI();
 };
 
 
