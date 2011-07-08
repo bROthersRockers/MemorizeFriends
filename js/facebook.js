@@ -1,138 +1,211 @@
-var fbid = facebook_app_id_holder();
-
 var is_test = true;
+/*
+ * Main Facebook Configuration
+ */
+var logged = 0;
+
+var user_id = 'me()';
+
+var fbid = '145355405525928';
 
 FB.init({
 	appId : fbid,
-	status : true, // check login status
-	cookie : true, // enable cookies to allow the server to access the session
-	xfbml : true // parse XFBML
+	status : true,
+	cookie : true,
+	xfbml : true
 });
 
-// Method called on application initialization
-var test_facebook_images = function(limit){
-  user_id = facebook_user_id_holder();
-  checkLoginAndLoad(user_id, limit); 
-}
+var uid = FB.getSession().uid;
 
-function checkLoginAndLoad(user_id, limit){
+/*
+ * Main Facebook Helpers
+ */
+function fblog(message) {
+	$("#my_log_div").prepend(" fb: "+ message + "<br/> ")
+};
+
+function getLogged() {
+	var isl = 0;
 	if(FB.getLoginStatus()==null) {
-		FB.login(function(response) {
-  			if (response.session) {
-    			// user successfully logged in
-    			alert("LOGED IN");
-				add_user_pictures(user_id, limit);
-  			} 
-  			else {
-    			alert("NO USER LOGIN, SORRY");
-  			}
+		fblog("Authentication in progress...");
+		FB.login( function(response) {
+			isl = (response.session? 1 : 0);
+		});
+	} else {
+		isl = 1;
+	}
+	return isl;
+};
+
+function loadMyProfile() {
+	FB.api('/me', function(user) {
+		if(user != null) {
+			fblog("Loading profile information...");
+			var image = document.getElementById('profile_image');
+			image.src = 'http://graph.facebook.com/' + user.id + '/picture';
+			var name = document.getElementById('nickname');
+			name.innerHTML = user.name
+		}
+	});
+};
+
+function getConnected() {
+	logged = getLogged();
+	if(logged == 1) {
+		fblog("Sucessfully logged in.");
+		loadMyProfile();
+	} else {
+		logged = 0;
+		/*$("#login_fb_holder").append('<fb:login-button show-faces="false" width="100" max-rows="5"></fb:login-button>');*/
+		fblog("<b>Not logged in!</b>");
+	}
+};
+
+/*
+ * Main Facebook Functions
+ */
+function invite() {
+	FB.ui({
+		method: 'apprequests',
+		message: 'You should learn more about this awesome Memorize Friends game.',
+		data: 'tracking information for the user'
+	});
+};
+
+function postMessage() {
+	FB.ui({
+		method: 'feed',
+		name: 'Facebook Dialogs',
+		link: 'http://developers.facebook.com/docs/reference/dialogs/',
+		picture: 'http://fbrell.com/f8.jpg',
+		caption: 'Reference Documentation',
+		description: 'Dialogs provide a simple, consistent interface for applications to interface with users.',
+		message: 'Facebook Dialogs are easy!'
+	}, function(response) {
+		if (response && response.post_id) {
+			alert('Post was published.');
+		} else {
+			alert('Post was not published.');
+		}
+	});
+};
+
+/*
+ * Common helpers
+ */
+
+function demoPost() {
+	var body = 'Reading Connect JS documentation';
+	FB.api('/me/feed', 'post', {
+		message: body
+	}, function(response) {
+		if (!response || response.error) {
+			alert('Error occured');
+		} else {
+			alert('Post ID: ' + response.id);
+		}
+	});
+};
+
+var imgkey = function(xcord, ycord) {
+	return ["image_",xcord,"_",ycord].join('');
+};
+
+var rndm = function(limit) {
+	return rnxy(1, limit);
+};
+
+function rnxy(minVal,maxVal,floatVal) {
+	var randVal = minVal+(Math.random()*(maxVal-minVal));
+	return (typeof floatVal=='undefined') ? Math.round(randVal) : randVal.toFixed(floatVal);
+};
+
+function canin(array, inst) {
+	return (array.indexOf(inst)=='undefined' || array.indexOf(inst)==null || array.indexOf(inst)<0);
+};
+
+function imgtag(uid, image_path) {
+	return ('<img class="user_photo" src="'+image_path+'" title="'+uid+'"/>');
+};
+
+/* Add user friends as card backgrounds.
+ *
+ * Task description
+ *
+ * There can be 16,  36,  64,  or  100 cards on  the board. Each
+ * picture is placed  on two  cards. User may  have less or more
+ * friends then needed for some level. If user have less friends
+ * then needed for selected leve, user is  automaticly  switched
+ * to appropriate level. Is  most cases user have  more  friends
+ * then  needed, and 8,18,32 or 50 friends  picures is needed to
+ * be able to play.
+ *
+ * First 4 helpers
+ */
+function add_user_pictures(limit) {
+	var qry = FB.Data.query('SELECT uid, name, pic_square FROM user WHERE uid={0} OR uid IN (SELECT uid2 FROM friend WHERE uid1={1})', uid, uid);
+	qry.wait(function(rows) {
+		process_qfriends(rows, limit);
+	});
+	fblog("Waiting for row data...");
+};
+
+function process_qfriends(friends, limit) {
+	fblog("Processing friends ...");
+	var max_pict = (limit*limit/2);
+	var selected_friends = new Array();
+	var counter = 50000;
+	while((selected_friends.length <= max_pict) && (counter>0)) {
+		counter -= 1;
+		var rnfriend = rnxy(2, friends.length-1);
+		if(canin(selected_friends, friends[rnfriend])) {
+			selected_friends.push(friends[rnfriend]);
+		}
+	}
+	if(counter==0){
+		fblog('ERROR!!! Timeout received.');	
+	}
+	fblog('Randomly selected ' + max_pict + ' friends from list');
+
+	var s1 =  $.shuffle(selected_friends);
+	var s2 =  $.shuffle(s1);
+        for(var c=0; c <= 5; c++){
+                s1 = $.shuffle(s1);
+                s2 = $.shuffle(s2);
+        }
+	selected_friends = $.shuffle(s2.concat(s1));
+
+	for (var i=1; i <= limit; i++) {
+		for (var j=1; j <= limit; j++) {
+			img = selected_friends.pop();
+			$("#"+imgkey(i,j)).append(imgtag(img.uid, img.pic_square));
+		}
+	}
+	fblog('Randomly placed ' + (2*max_pict) + ' images on the board.');
+};
+
+
+/*
+ * jQuery shuffle
+ *
+ * Copyright (c) 2008 Ca-Phun Ung <caphun at yelotofu dot com>
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
+ * and GPL (GPL-LICENSE.txt) licenses.
+ *
+ * http://yelotofu.com/labs/jquery/snippets/shuffle/
+ *
+ * Shuffles an array or the children of a element container.
+ * This uses the Fisher-Yates shuffle algorithm <http://jsfromhell.com/array/shuffle [v1.0]>
+ */
+ (function($){
+	$.fn.shuffle = function() {
+		return this.each(function(){
+			var items = $(this).children().clone(true);
+			return (items.length) ? $(this).html($.shuffle(items)) : this;
 		});
 	}
-}
-	
-/* Add user friends as card backgrounds. 
- *  
- * Task description
- * 
- * There can be 16, 36, 64, 100 or 144 cards on  the board. Each 
- * picture is placed  on two  cards. User may  have less or more 
- * friends then needed for some level. If user have less friends
- * then needed for selected leve, user is  automaticly  switched 
- * to appropriate level. Is  most cases user have  more  friends 
- * then  needed, and 8,18,32,50 or 72 friends  picures is needed 
- * to be able to play
- */ 
-add_user_pictures = function(user_id, limit){		
-	// All images on the board
-	// Holder for Map {nextrandom, nextimage}
-	var images = new Object();
-	var nextrandom = -1;
-	var nextimage  = "";
-	// Call FB api for user_id param
-	FB.api('/me', function(me) {
-		// Get all objects for user frineds
-	   var query = getFriendPicturesQuery(me);
-		var doquery = FB.Data.query(query);
-		// Execute query and proces result rows
-		doquery.wait(function(rows) {
-		   // Take random images until reaching limit   		   
-		   while(images.length < limit){
-		      // Randomly from all friends
-		   	nextrandom = randomXToY(1,rows.length());
-		   	// Select picture only once,  
-		   	if(images[nextrandom] == null) {
-		   		// Add key and image to map
-		   		images[nextrandom] = {
-		   			imagesrc: rows[nextrandom].pic_square
-		   		};
-					alert("ADDED NUMBER:" + nextrandom + "; IMAGE SRC:" + nextimage.imagesrc);
-		   	}
-		   }
-			// Tracking used positions on board
-			var positions = new Array();
-			// Traverse selected pictures
-			$.each(images, function(i,item){
-				// Tracking usage of some picure
-				var numberonboard = 0;
-				// Place each on two positions
-				while(numberonboard < 2) {
-					// Get random for axes
-					nextx = randomXToY(1,limit);
-					nexty = randomXToY(1,limit);
-					// Target element <a id=" .... />
-					nextid = "image_" + nextx + "_" + nexty;
-					// Test if this position is used
-					if(!positions.contains(nextid)) {
-						// Get image code
-						var imagecode = getImageCode(item.imagesrc);
-						// Add Image code to Target element
-						$("#"+ next_id).append(imagecode);
-						// Mark position						
-						positions.add(nextid);
-						// Increase number of occurences
-						numberonboard = numberonboard + 1;
-					} 
-				}
-  			});
-  			
-		});
-		
-   });
-   
-}
-
-function getFriendPicturesQuery(me){
-  var q = [];
-  q[0] = 'SELECT uid, name, pic_square FROM user WHERE uid =';
-  q[1] = me.id;
-  q[2] = 'OR uid IN (SELECT uid2 FROM friend WHERE uid1 =';
-  q[3] = me.id;
-  q[4] = ')'
-  return q.join(' ');
-}
-
-function getImageCode(image_path){
-  var q = [];
-  q[0] = ' <img';
-  q[1] = ' class="user_photo"';
-  q[2] = ' style="position:absolute; z-index: 1; left: 5; top: 5;"';
-  q[3] = ' src="';
-  q[4] = image_path;
-  q[5] = '"/>'
-  return q.join('');
-}
-
-function randomXToY(minVal,maxVal,floatVal) {
-  var randVal = minVal+(Math.random()*(maxVal-minVal));
-  return typeof floatVal=='undefined'?Math.round(randVal):randVal.toFixed(floatVal);
-}
-
-FB.init({
-	appId : fbid,
-	status : true, // check login status
-	cookie : true, // enable cookies to allow the server to access the session
-	xfbml : true // parse XFBML
-});
-// ???
-var uid = FB.getSession().uid;
-var query = FB.Data.query('select title, url, created_time from link where owner={0}',uid);
+	$.shuffle = function(arr) {
+		for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);
+		return arr;
+	}
+})(jQuery);
